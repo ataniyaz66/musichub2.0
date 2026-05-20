@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat — MusicHub</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container" style="padding-top:1rem">
+    <div class="chat-layout">
+      <div class="chat-sidebar">
+        <div class="sidebar-header">
+          💬 Messages
+          <button class="btn btn-outline btn-sm" id="new-chat-btn"
+            style="float:right;margin-top:-4px">New</button>
+        </div>
+        <div id="conv-list"></div>
+      </div>
+
+      <div class="chat-main">
+        <div class="chat-header" id="chat-with">Select a conversation</div>
+        <div class="chat-messages" id="messages"></div>
+        <div class="chat-input-area">
+          <input type="text" id="msg-input" placeholder="Type a message...">
+          <button id="send-btn">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../js/chat.js"></script>
+</body>
+</html>
