@@ -1,0 +1,396 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: musichub
+---
+# ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: musichub-config
+  namespace: musichub
+data:
+  MONGO_URI_AUTH: "mongodb://mongo:27017/auth-db"
+  MONGO_URI_SONGS: "mongodb://mongo:27017/song-db"
+  MONGO_URI_USERS: "mongodb://mongo:27017/user-db"
+  MONGO_URI_CHAT: "mongodb://mongo:27017/chat-db"
+---
+# Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: musichub-secrets
+  namespace: musichub
+type: Opaque
+stringData:
+  JWT_SECRET: "musichub-super-secret-jwt-key-2024"
+---
+# MongoDB Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: musichub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:7.0
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+      volumes:
+      - name: mongo-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: musichub
+spec:
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017
+---
+# Auth Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: musichub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: sremusichub-auth:latest
+        ports:
+        - containerPort: 4001
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            configMapKeyRef:
+              name: musichub-config
+              key: MONGO_URI_AUTH
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: musichub-secrets
+              key: JWT_SECRET
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: musichub
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - port: 4001
+    targetPort: 4001
+---
+# Song Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: song-service
+  namespace: musichub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: song-service
+  template:
+    metadata:
+      labels:
+        app: song-service
+    spec:
+      containers:
+      - name: song-service
+        image: sremusichub-songs:latest
+        ports:
+        - containerPort: 4002
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            configMapKeyRef:
+              name: musichub-config
+              key: MONGO_URI_SONGS
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: musichub-secrets
+              key: JWT_SECRET
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: song-service
+  namespace: musichub
+spec:
+  selector:
+    app: song-service
+  ports:
+  - port: 4002
+    targetPort: 4002
+---
+# User Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: musichub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: sremusichub-users:latest
+        ports:
+        - containerPort: 4003
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            configMapKeyRef:
+              name: musichub-config
+              key: MONGO_URI_USERS
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: musichub-secrets
+              key: JWT_SECRET
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: musichub
+spec:
+  selector:
+    app: user-service
+  ports:
+  - port: 4003
+    targetPort: 4003
+---
+# Chat Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+  namespace: musichub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      containers:
+      - name: chat-service
+        image: sremusichub-chat:latest
+        ports:
+        - containerPort: 4004
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            configMapKeyRef:
+              name: musichub-config
+              key: MONGO_URI_CHAT
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: musichub-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-service
+  namespace: musichub
+spec:
+  selector:
+    app: chat-service
+  ports:
+  - port: 4004
+    targetPort: 4004
+---
+# Frontend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: musichub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: sremusichub-frontend:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: musichub
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+---
+# Gateway (Ingress)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: musichub-ingress
+  namespace: musichub
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: musichub.local
+    http:
+      paths:
+      - path: /api/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 4001
+      - path: /api/songs
+        pathType: Prefix
+        backend:
+          service:
+            name: song-service
+            port:
+              number: 4002
+      - path: /api/users
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 4003
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+---
+# HorizontalPodAutoscaler for song-service
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: song-service-hpa
+  namespace: musichub
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: song-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
