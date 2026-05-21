@@ -1,0 +1,179 @@
+services:
+
+  gateway:
+    build: ./gateway
+    container_name: musichub-gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - song-service
+      - user-service
+      - chat-service
+      - frontend
+    restart: unless-stopped
+    networks:
+      - musichub-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build: ./frontend
+    container_name: musichub-frontend
+    restart: unless-stopped
+    networks:
+      - musichub-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/pages/login.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: musichub-auth
+    environment:
+      PORT: 4001
+      MONGO_URI: mongodb://mongo:27017/auth-db
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - musichub-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  song-service:
+    build: ./services/song-service
+    container_name: musichub-songs
+    environment:
+      PORT: 4002
+      MONGO_URI: mongodb://mongo:27017/song-db
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - musichub-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  user-service:
+    build: ./services/user-service
+    container_name: musichub-users
+    environment:
+      PORT: 4003
+      MONGO_URI: mongodb://mongo:27017/user-db
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - musichub-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  chat-service:
+    build: ./services/chat-service
+    container_name: musichub-chat
+    environment:
+      PORT: 4004
+      MONGO_URI: mongodb://mongo:27017/chat-db
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - musichub-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  mongo:
+    image: mongo:7.0
+    container_name: musichub-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./database/mongo-init/init.js:/docker-entrypoint-initdb.d/init.js:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      musichub-network:
+        aliases:
+          - mongo
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: musichub-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=7d"
+      - "--web.enable-lifecycle"
+    restart: unless-stopped
+    networks:
+      - musichub-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: musichub-grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - musichub-network
+
+volumes:
+  mongo_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  musichub-network:
+    driver: bridge

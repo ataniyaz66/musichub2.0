@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -8,7 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 const app = express();
 const PORT = process.env.PORT || 4001;
 
-// ── Prometheus metrics ──────────────────────────────────────
+// в”Ђв”Ђ Prometheus metrics в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
@@ -30,11 +30,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── Middleware ───────────────────────────────────────────────
+// в”Ђв”Ђ Middleware в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 app.use(cors());
 app.use(express.json());
 
-// ── Routes ───────────────────────────────────────────────────
+// в”Ђв”Ђ Routes в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 app.use('/api/auth', authRoutes);
 
 app.get('/health', (req, res) => {
@@ -46,12 +46,14 @@ app.get('/metrics', async (req, res) => {
   res.end(await register.metrics());
 });
 
-// ── MongoDB connection ───────────────────────────────────────
+// в”Ђв”Ђ MongoDB connection в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log('[auth-service] MongoDB connected');
-    app.listen(PORT, () =>
+    
+app.get('/health', (req, res) => res.json({ status: 'ok', service: 'auth-service' }));
+app.listen(PORT, () =>
       console.log(`[auth-service] Running on port ${PORT}`)
     );
   })

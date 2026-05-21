@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Songs — MusicHub</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>🎵 Songs</h1>
+      <a href="/pages/song-form.html" class="btn btn-primary btn-sm">+ Add Song</a>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search by title, artist, album...">
+      <select id="sort-select">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="title">By title</option>
+        <option value="year">By year</option>
+      </select>
+    </div>
+
+    <div id="songs-grid" class="songs-grid">
+      <div class="loading">Loading songs...</div>
+    </div>
+
+    <div id="pagination" class="pagination"></div>
+  </div>
+
+  <script type="module" src="../js/songs.js"></script>
+</body>
+</html>

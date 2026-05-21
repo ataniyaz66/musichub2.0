@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers: []
+
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "auth-service"
+    static_configs:
+      - targets: ["auth-service:4001"]
+    metrics_path: /metrics
+
+  - job_name: "song-service"
+    static_configs:
+      - targets: ["song-service:4002"]
+    metrics_path: /metrics
+
+  - job_name: "user-service"
+    static_configs:
+      - targets: ["user-service:4003"]
+    metrics_path: /metrics
+
+  - job_name: "chat-service"
+    static_configs:
+      - targets: ["chat-service:4004"]
+    metrics_path: /metrics

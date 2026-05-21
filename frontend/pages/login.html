@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — MusicHub</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-box">
+      <h1>Welcome back</h1>
+      <p class="subtitle">Sign in to your MusicHub account</p>
+
+      <div id="alert" class="alert"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </form>
+
+      <p style="margin-top:1.5rem;text-align:center;color:var(--text-muted);font-size:0.9rem">
+        No account? <a href="/pages/register.html" style="color:var(--primary)">Register</a>
+      </p>
+    </div>
+  </div>
+  <script type="module" src="../js/auth.js"></script>
+</body>
+</html>

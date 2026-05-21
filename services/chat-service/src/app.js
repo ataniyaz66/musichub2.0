@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -13,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 4004;
 
-// ── Prometheus metrics ──────────────────────────────────────
+// в”Ђв”Ђ Prometheus metrics в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── Socket.io setup ─────────────────────────────────────────
+// в”Ђв”Ђ Socket.io setup в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 const io = new Server(server, {
   cors: { origin: '*', methods: ['GET', 'POST'] },
 });
@@ -96,11 +96,11 @@ io.on('connection', (socket) => {
   });
 });
 
-// ── Middleware ───────────────────────────────────────────────
+// в”Ђв”Ђ Middleware в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 app.use(cors());
 app.use(express.json());
 
-// ── Routes ───────────────────────────────────────────────────
+// в”Ђв”Ђ Routes в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 app.use('/api/chat', chatRoutes);
 
 app.get('/health', (req, res) => {
@@ -112,7 +112,7 @@ app.get('/metrics', async (req, res) => {
   res.end(await register.metrics());
 });
 
-// ── MongoDB connection ───────────────────────────────────────
+// в”Ђв”Ђ MongoDB connection в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
